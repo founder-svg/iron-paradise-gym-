@@ -232,6 +232,14 @@ class AddEditProductActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
+            var finalImageUri = currentImageUri
+            if (!currentImageUri.isNullOrBlank() && !currentImageUri!!.startsWith("http")) {
+                val uploadedUrl = com.ironparadise.gymcrm.data.network.CloudSyncManager.uploadPhoto(applicationContext, currentImageUri!!)
+                if (!uploadedUrl.isNullOrBlank()) {
+                    finalImageUri = uploadedUrl
+                }
+            }
+
             if (isEditMode) {
                 val existing = existingProduct
                 val updated = ProductEntity(
@@ -245,11 +253,12 @@ class AddEditProductActivity : AppCompatActivity() {
                     purchasePrice = purchasePrice,
                     minimumStock = minStock,
                     status = existing?.status ?: "ACTIVE",
-                    imageUri = currentImageUri,
+                    imageUri = finalImageUri,
                     createdAt = existing?.createdAt ?: System.currentTimeMillis(),
                     updatedAt = System.currentTimeMillis()
                 )
                 app.repository.updateProduct(updated)
+                com.ironparadise.gymcrm.data.network.CloudSyncManager.pushProduct(applicationContext, updated)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@AddEditProductActivity, "Supplement updated successfully", Toast.LENGTH_SHORT).show()
                     finish()
@@ -265,9 +274,10 @@ class AddEditProductActivity : AppCompatActivity() {
                     sellingPrice = sellingPrice,
                     purchasePrice = purchasePrice,
                     minimumStock = minStock,
-                    imageUri = currentImageUri
+                    imageUri = finalImageUri
                 )
                 app.repository.addProduct(product, initialStock = totalQuantity)
+                com.ironparadise.gymcrm.data.network.CloudSyncManager.pushProduct(applicationContext, product, initialStock = totalQuantity)
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@AddEditProductActivity, "Product saved with $totalQuantity units opening stock", Toast.LENGTH_SHORT).show()
                     finish()

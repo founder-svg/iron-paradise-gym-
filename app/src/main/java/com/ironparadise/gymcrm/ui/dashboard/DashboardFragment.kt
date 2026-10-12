@@ -62,8 +62,14 @@ class DashboardFragment : Fragment() {
     }
 
     private fun setupQuickActions() {
-        binding.btnQuickStockIn.setOnClickListener {
-            startActivity(Intent(requireContext(), StockInActivity::class.java))
+        val isAdmin = app.sessionManager.isAdmin
+        if (isAdmin) {
+            binding.btnQuickStockIn.visibility = View.VISIBLE
+            binding.btnQuickStockIn.setOnClickListener {
+                startActivity(Intent(requireContext(), StockInActivity::class.java))
+            }
+        } else {
+            binding.btnQuickStockIn.visibility = View.GONE
         }
 
         binding.btnQuickNewSale.setOnClickListener {

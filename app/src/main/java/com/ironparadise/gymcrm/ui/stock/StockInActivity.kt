@@ -33,6 +33,12 @@ class StockInActivity : AppCompatActivity() {
         binding = ActivityStockInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (!app.sessionManager.isAdmin) {
+            Toast.makeText(this, "Access Denied: Stock In requires Admin permissions", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
         setupHeader()
         setupListeners()
         loadProducts()
@@ -155,6 +161,23 @@ class StockInActivity : AppCompatActivity() {
                     notes = notes.ifBlank { null },
                     user = app.sessionManager.userName
                 )
+
+                // Push stock transaction to cloud
+                val tx = com.ironparadise.gymcrm.data.db.entities.StockTransactionEntity(
+                    productId = product.id,
+                    productName = product.name,
+                    transactionType = "STOCK_IN",
+                    quantity = qty,
+                    unitPrice = purchasePrice,
+                    total = qty * purchasePrice,
+                    referenceId = binding.tvEntryId.text.toString(),
+                    date = System.currentTimeMillis(),
+                    notes = "Supplier: $supplier | Batch: $batch | Exp: $expiry | $notes".trim(),
+                    createdBy = app.sessionManager.userName,
+                    balanceAfter = currentProductStock + qty
+                )
+                com.ironparadise.gymcrm.data.network.CloudSyncManager.pushStockTransaction(applicationContext, tx)
+
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@StockInActivity, "Stock In Recorded: +$qty units of ${product.name}", Toast.LENGTH_LONG).show()
                     finish()

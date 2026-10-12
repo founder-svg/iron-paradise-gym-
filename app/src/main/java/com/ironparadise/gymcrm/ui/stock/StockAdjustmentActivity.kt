@@ -148,6 +148,26 @@ class StockAdjustmentActivity : AppCompatActivity() {
                     notes = notes.ifBlank { null },
                     user = app.sessionManager.userName
                 )
+
+                val diff = physical - currentSystemStock
+                val isAddition = diff > 0
+                val qty = if (isAddition) diff else -diff
+                val transType = if (isAddition) "ADJUSTMENT_IN" else "ADJUSTMENT_OUT"
+                val tx = com.ironparadise.gymcrm.data.db.entities.StockTransactionEntity(
+                    productId = product.id,
+                    productName = product.name,
+                    transactionType = transType,
+                    quantity = qty,
+                    unitPrice = product.purchasePrice,
+                    total = qty * product.purchasePrice,
+                    referenceId = "ADJ-${System.currentTimeMillis()}",
+                    date = System.currentTimeMillis(),
+                    notes = "Adjustment ($reason). System: $currentSystemStock -> Physical: $physical. $notes".trim(),
+                    createdBy = app.sessionManager.userName,
+                    balanceAfter = physical
+                )
+                com.ironparadise.gymcrm.data.network.CloudSyncManager.pushStockTransaction(applicationContext, tx)
+
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@StockAdjustmentActivity, "Inventory Reconciled: ${product.name} is now $physical units", Toast.LENGTH_LONG).show()
                     finish()

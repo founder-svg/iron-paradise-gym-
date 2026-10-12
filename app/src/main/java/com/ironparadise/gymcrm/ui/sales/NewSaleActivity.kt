@@ -331,6 +331,12 @@ class NewSaleActivity : AppCompatActivity() {
                     user = app.sessionManager.userName
                 )
 
+                // Background cloud sync push to update server and all other 9 devices
+                val itemsCopy = ArrayList(cartItems)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    com.ironparadise.gymcrm.data.network.CloudSyncManager.pushSale(applicationContext, sale, itemsCopy)
+                }
+
                 withContext(Dispatchers.Main) {
                     Toast.makeText(this@NewSaleActivity, "Sale Confirmed! Invoice: ${sale.invoiceNumber}", Toast.LENGTH_LONG).show()
 

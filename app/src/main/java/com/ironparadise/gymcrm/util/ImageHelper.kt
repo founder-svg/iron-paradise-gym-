@@ -14,6 +14,8 @@ import com.ironparadise.gymcrm.R
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.concurrent.Executors
 
 object ImageHelper {
@@ -126,20 +128,49 @@ object ImageHelper {
             return
         }
 
-        val file = File(pathOrUri)
-        if (!file.exists()) {
-            imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
-            imageView.setImageResource(placeholderResId)
-            imageView.tag = null
-            return
-        }
-
         imageView.tag = pathOrUri
 
         executor.execute {
             try {
+                val context = imageView.context
+                val resolvedFile: File? = if (pathOrUri.startsWith("http://") || pathOrUri.startsWith("https://")) {
+                    val cacheFolder = File(context.cacheDir, "cloud_images")
+                    if (!cacheFolder.exists()) cacheFolder.mkdirs()
+                    val filename = "cached_${pathOrUri.hashCode().toString().replace("-", "n")}.jpg"
+                    val cachedFile = File(cacheFolder, filename)
+                    if (!cachedFile.exists() || cachedFile.length() == 0L) {
+                        try {
+                            val url = URL(pathOrUri)
+                            val conn = url.openConnection() as HttpURLConnection
+                            conn.connectTimeout = 6000
+                            conn.readTimeout = 8000
+                            conn.inputStream.use { input ->
+                                FileOutputStream(cachedFile).use { output ->
+                                    input.copyTo(output)
+                                }
+                            }
+                        } catch (e: Exception) {
+                            cachedFile.delete()
+                        }
+                    }
+                    if (cachedFile.exists() && cachedFile.length() > 0) cachedFile else null
+                } else {
+                    val local = File(pathOrUri)
+                    if (local.exists()) local else null
+                }
+
+                if (resolvedFile == null || !resolvedFile.exists()) {
+                    mainHandler.post {
+                        if (imageView.tag == pathOrUri) {
+                            imageView.scaleType = ImageView.ScaleType.CENTER_INSIDE
+                            imageView.setImageResource(placeholderResId)
+                        }
+                    }
+                    return@execute
+                }
+
                 val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-                BitmapFactory.decodeFile(file.absolutePath, opts)
+                BitmapFactory.decodeFile(resolvedFile.absolutePath, opts)
 
                 val reqSize = 400
                 var inSampleSize = 1
@@ -155,7 +186,7 @@ object ImageHelper {
                     this.inSampleSize = inSampleSize
                     inPreferredConfig = Bitmap.Config.RGB_565
                 }
-                val bitmap = BitmapFactory.decodeFile(file.absolutePath, decodeOpts)
+                val bitmap = BitmapFactory.decodeFile(resolvedFile.absolutePath, decodeOpts)
 
                 mainHandler.post {
                     if (imageView.tag == pathOrUri) {

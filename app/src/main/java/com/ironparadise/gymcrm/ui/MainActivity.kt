@@ -111,4 +111,11 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.fragmentContainer, fragment)
             .commit()
     }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch(Dispatchers.IO) {
+            CloudSyncManager.pullRemoteSync(this@MainActivity)
+        }
+    }
 }
