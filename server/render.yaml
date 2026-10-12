@@ -2,6 +2,7 @@ services:
   - type: web
     name: iron-paradise-gym-api
     runtime: node
+    rootDir: server
     buildCommand: npm install
     startCommand: node index.js
     plan: free
