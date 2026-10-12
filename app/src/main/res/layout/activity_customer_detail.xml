@@ -32,6 +32,24 @@
             android:textColor="@color/text_primary"
             android:textSize="18sp"
             android:textStyle="bold" />
+
+        <ImageButton
+            android:id="@+id/btnEditCustomer"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_edit"
+            app:tint="@color/accent_gold"
+            android:contentDescription="Edit Customer (Admin Only)" />
+
+        <ImageButton
+            android:id="@+id/btnDeleteCustomer"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_delete"
+            app:tint="@color/accent_red"
+            android:contentDescription="Delete Customer (Admin Only)" />
     </LinearLayout>
 
     <!-- Customer Hero Card (Mockup Screen 11) -->

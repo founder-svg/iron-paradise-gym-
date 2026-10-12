@@ -56,6 +56,12 @@ class AddEditProductActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
+        if (!app.sessionManager.isAdmin) {
+            Toast.makeText(this, "Access Denied: Only Admin can add or edit products", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
         setupPhotoButtons()
         setupFormulaWatchers()
 

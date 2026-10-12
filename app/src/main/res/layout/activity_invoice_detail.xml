@@ -149,6 +149,36 @@
                     android:textColor="#555555"
                     android:textSize="12sp" />
 
+                <!-- Staff Billed By & Admin Approval Status Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:id="@+id/tvBilledBy"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Billed By: Staff Member"
+                        android:textColor="#555555"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/tvInvoiceStatus"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="APPROVED"
+                        android:textSize="11sp"
+                        android:textStyle="bold"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="3dp"
+                        android:background="@drawable/bg_badge_in_stock"
+                        android:textColor="@color/accent_green" />
+                </LinearLayout>
+
                 <!-- Table Header Row -->
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -459,13 +489,25 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Admin Approve Sale Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnApproveSale"
+            android:layout_width="match_parent"
+            android:layout_height="48dp"
+            android:layout_marginTop="16dp"
+            android:text="APPROVE &amp; VERIFY SALE"
+            android:textColor="@color/bg_black"
+            android:textStyle="bold"
+            app:backgroundTint="@color/accent_green"
+            app:cornerRadius="10dp" />
+
         <!-- Cancel / Reverse Sale Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelSale"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:text="Cancel &amp; Reverse Sale (Restore Stock)"
             android:textColor="@color/accent_red"
             android:textSize="13sp" />

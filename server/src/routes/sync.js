@@ -239,4 +239,26 @@ router.get('/status', (req, res) => {
     });
 });
 
+// 4. Admin Update Staff Approval Status (Real-time Cloud Sync)
+router.post('/staff-status', (req, res) => {
+    const { email, status } = req.body;
+    if (!email || !status) return res.status(400).json({ error: 'Email and status required' });
+
+    db.run('UPDATE users SET status = ? WHERE email = ?', [status, email.trim().toLowerCase()], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, email, status, changes: this.changes });
+    });
+});
+
+// 5. Admin Remove Staff Member (Real-time Cloud Sync)
+router.post('/delete-staff', (req, res) => {
+    const { email } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email required' });
+
+    db.run("DELETE FROM users WHERE email = ? AND role = 'STAFF'", [email.trim().toLowerCase()], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        res.json({ success: true, email, deleted: this.changes });
+    });
+});
+
 module.exports = router;

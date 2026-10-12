@@ -9,6 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.lifecycle.lifecycleScope
 import com.ironparadise.gymcrm.IronParadiseApp
@@ -93,11 +94,37 @@ class InvoiceDetailActivity : AppCompatActivity() {
         }
         binding.tvGrandTotal.text = Formatters.formatCurrency(sale.grandTotal)
 
-        if (sale.status == "CANCELLED") {
-            binding.btnCancelSale.isEnabled = false
-            binding.btnCancelSale.text = "SALE CANCELLED & REVERSED"
-        } else {
-            binding.btnCancelSale.visibility = if (app.sessionManager.isAdmin) View.VISIBLE else View.GONE
+        binding.tvBilledBy.text = "Billed By: ${sale.createdByUser}"
+
+        val isAdmin = app.sessionManager.isAdmin
+        when (sale.status) {
+            "CANCELLED" -> {
+                binding.tvInvoiceStatus.text = "CANCELLED & REVERSED"
+                binding.tvInvoiceStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_red))
+                binding.tvInvoiceStatus.setBackgroundResource(R.drawable.bg_badge_out_of_stock)
+                binding.btnApproveSale.visibility = View.GONE
+                binding.btnCancelSale.visibility = if (isAdmin) View.VISIBLE else View.GONE
+                binding.btnCancelSale.isEnabled = false
+                binding.btnCancelSale.text = "SALE CANCELLED & REVERSED"
+            }
+            "PENDING_APPROVAL" -> {
+                binding.tvInvoiceStatus.text = "PENDING ADMIN APPROVAL"
+                binding.tvInvoiceStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_gold))
+                binding.tvInvoiceStatus.setBackgroundResource(R.drawable.bg_badge_low_stock)
+                binding.btnApproveSale.visibility = if (isAdmin) View.VISIBLE else View.GONE
+                binding.btnCancelSale.visibility = if (isAdmin) View.VISIBLE else View.GONE
+                binding.btnCancelSale.isEnabled = true
+                binding.btnCancelSale.text = "Reject & Void Sale (Admin)"
+            }
+            else -> { // "APPROVED" or "COMPLETED"
+                binding.tvInvoiceStatus.text = "APPROVED BY ADMIN"
+                binding.tvInvoiceStatus.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
+                binding.tvInvoiceStatus.setBackgroundResource(R.drawable.bg_badge_in_stock)
+                binding.btnApproveSale.visibility = View.GONE
+                binding.btnCancelSale.visibility = if (isAdmin) View.VISIBLE else View.GONE
+                binding.btnCancelSale.isEnabled = true
+                binding.btnCancelSale.text = "Cancel & Reverse Sale (Restore Stock)"
+            }
         }
     }
 
@@ -108,7 +135,30 @@ class InvoiceDetailActivity : AppCompatActivity() {
         binding.btnActionWhatsApp.setOnClickListener { shareToWhatsApp() }
         binding.btnActionEmail.setOnClickListener { shareToEmail() }
 
+        binding.btnApproveSale.setOnClickListener {
+            if (!app.sessionManager.isAdmin) {
+                Toast.makeText(this, "Access Denied: Only Admin can approve sales", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val details = currentSaleDetails ?: return@setOnClickListener
+            lifecycleScope.launch(Dispatchers.IO) {
+                val success = app.repository.approveSale(details.sale.id)
+                withContext(Dispatchers.Main) {
+                    if (success) {
+                        Toast.makeText(this@InvoiceDetailActivity, "Sale Verified & Approved by Admin!", Toast.LENGTH_SHORT).show()
+                        loadInvoice(details.sale.id)
+                    } else {
+                        Toast.makeText(this@InvoiceDetailActivity, "Failed to approve sale", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
         binding.btnCancelSale.setOnClickListener {
+            if (!app.sessionManager.isAdmin) {
+                Toast.makeText(this, "Access Denied: Only Admin can cancel or reverse sales", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
             val details = currentSaleDetails ?: return@setOnClickListener
             AlertDialog.Builder(this)
                 .setTitle("Reverse Sale & Restore Stock?")

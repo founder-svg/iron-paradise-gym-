@@ -500,7 +500,7 @@ object CloudSyncManager {
                                     total = if (isAdmin || txType != "STOCK_IN") t.optDouble("total", 0.0) else 0.0,
                                     balanceAfter = t.optInt("balanceAfter", 0),
                                     referenceId = refId,
-                                    notes = t.optString("notes", null),
+                                    notes = t.optString("notes", "").ifBlank { null },
                                     date = t.optLong("date", System.currentTimeMillis()),
                                     createdBy = t.optString("user", "Admin")
                                 )
@@ -513,6 +513,67 @@ object CloudSyncManager {
             }
         } catch (e: Exception) {
             Log.e(TAG, "pullRemoteSync error: ${e.message}")
+        }
+        false
+    }
+
+    suspend fun updateRemoteStaffStatus(context: Context, email: String, status: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val baseUrl = getServerUrl(context).trimEnd('/')
+            val endpoint = "$baseUrl/api/sync/staff-status"
+            val url = URL(endpoint)
+            val conn = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = CONNECT_TIMEOUT
+                readTimeout = READ_TIMEOUT
+                doOutput = true
+                setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("Accept", "application/json")
+            }
+
+            val payload = JSONObject().apply {
+                put("email", email)
+                put("status", status)
+            }
+
+            val writer = OutputStreamWriter(conn.outputStream)
+            writer.write(payload.toString())
+            writer.flush()
+            writer.close()
+
+            return@withContext conn.responseCode in 200..299
+        } catch (e: Exception) {
+            Log.e(TAG, "updateRemoteStaffStatus error: ${e.message}")
+        }
+        false
+    }
+
+    suspend fun deleteRemoteStaff(context: Context, email: String): Boolean = withContext(Dispatchers.IO) {
+        try {
+            val baseUrl = getServerUrl(context).trimEnd('/')
+            val endpoint = "$baseUrl/api/sync/delete-staff"
+            val url = URL(endpoint)
+            val conn = (url.openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = CONNECT_TIMEOUT
+                readTimeout = READ_TIMEOUT
+                doOutput = true
+                setRequestProperty("Content-Type", "application/json")
+                setRequestProperty("Accept", "application/json")
+            }
+
+            val payload = JSONObject().apply {
+                put("email", email)
+            }
+
+            val writer = OutputStreamWriter(conn.outputStream)
+            writer.write(payload.toString())
+            writer.flush()
+            writer.close()
+
+            return@withContext conn.responseCode in 200..299
+        } catch (e: Exception) {
+            Log.e(TAG, "deleteRemoteStaff error: ${e.message}")
         }
         false
     }

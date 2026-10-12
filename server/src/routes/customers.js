@@ -43,4 +43,39 @@ router.post('/', optionalAuth, (req, res) => {
     });
 });
 
+// 3. Edit Customer (Admin Only)
+router.put('/:id', optionalAuth, (req, res) => {
+    if (req.user && req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Access Denied: Only Admin can edit registered customer records' });
+    }
+    const { id } = req.params;
+    const { name, phone, email } = req.body;
+
+    db.run(`
+        UPDATE customers
+        SET name = COALESCE(?, name),
+            phone = COALESCE(?, phone),
+            email = COALESCE(?, email)
+        WHERE id = ?
+    `, [name, phone, email, id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Customer not found' });
+        res.json({ message: 'Customer updated successfully by Admin', id });
+    });
+});
+
+// 4. Delete Customer (Admin Only)
+router.delete('/:id', optionalAuth, (req, res) => {
+    if (req.user && req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Access Denied: Only Admin can delete customer records' });
+    }
+    const { id } = req.params;
+
+    db.run('DELETE FROM customers WHERE id = ?', [id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Customer not found' });
+        res.json({ message: 'Customer deleted successfully by Admin', id });
+    });
+});
+
 module.exports = router;

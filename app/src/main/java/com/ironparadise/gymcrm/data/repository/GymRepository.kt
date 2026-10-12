@@ -223,7 +223,7 @@ class GymRepository(private val db: AppDatabase) {
             tax = tax,
             grandTotal = grandTotal,
             paymentMethod = paymentMethod,
-            status = "COMPLETED",
+            status = if (user.contains("Admin", ignoreCase = true)) "APPROVED" else "PENDING_APPROVAL",
             createdByUser = user
         )
 
@@ -298,6 +298,12 @@ class GymRepository(private val db: AppDatabase) {
         return true
     }
 
+    suspend fun approveSale(saleId: Long): Boolean {
+        val sale = saleDao.getSaleById(saleId) ?: return false
+        saleDao.updateSale(sale.copy(status = "APPROVED"))
+        return true
+    }
+
     suspend fun recordStockAdjustment(
         productId: String,
         physicalCount: Int,
@@ -359,6 +365,7 @@ class GymRepository(private val db: AppDatabase) {
 
     suspend fun addCustomer(customer: CustomerEntity): Long = customerDao.insertCustomer(customer)
     suspend fun updateCustomer(customer: CustomerEntity) = customerDao.updateCustomer(customer)
+    suspend fun deleteCustomer(customer: CustomerEntity) = customerDao.deleteCustomer(customer)
     suspend fun getCustomerById(id: Long) = customerDao.getCustomerById(id)
     suspend fun getSalesForCustomer(customerId: Long) = saleDao.getSalesForCustomer(customerId)
 

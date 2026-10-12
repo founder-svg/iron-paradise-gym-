@@ -95,9 +95,13 @@ function initDatabase() {
                 grandTotal REAL NOT NULL,
                 paymentMethod TEXT NOT NULL,
                 user TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'APPROVED',
                 date INTEGER NOT NULL
             )
         `);
+
+        // Migration for existing databases
+        db.run("ALTER TABLE sales ADD COLUMN status TEXT NOT NULL DEFAULT 'APPROVED'", () => {});
 
         // 6. Sale Items Table
         db.run(`

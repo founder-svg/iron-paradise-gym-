@@ -84,12 +84,14 @@ router.post('/', optionalAuth, (req, res) => {
             const now = Date.now();
             const invoiceNumber = `INV-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${Math.floor(1000 + Math.random() * 9000)}`;
 
+            const initialStatus = isStaff ? 'PENDING_APPROVAL' : 'APPROVED';
+
             // Begin transaction to record sale, items, and stock deductions
             db.serialize(() => {
                 db.run(`
-                    INSERT INTO sales (invoiceNumber, customerId, customerName, customerPhone, subtotal, discount, grandTotal, paymentMethod, user, date)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                `, [invoiceNumber, customerId, customerName, customerPhone, subtotal, effectiveDiscount, grandTotal, paymentMethod, saleUser, now], function (err) {
+                    INSERT INTO sales (invoiceNumber, customerId, customerName, customerPhone, subtotal, discount, grandTotal, paymentMethod, user, status, date)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                `, [invoiceNumber, customerId, customerName, customerPhone, subtotal, effectiveDiscount, grandTotal, paymentMethod, saleUser, initialStatus, now], function (err) {
                     if (err) return res.status(500).json({ error: err.message });
 
                     const saleId = this.lastID;
@@ -124,6 +126,7 @@ router.post('/', optionalAuth, (req, res) => {
                             grandTotal,
                             paymentMethod,
                             user: saleUser,
+                            status: initialStatus,
                             date: now,
                             items: processedItems
                         }
@@ -137,10 +140,10 @@ router.post('/', optionalAuth, (req, res) => {
 // 2. Get Sales History
 router.get('/', optionalAuth, (req, res) => {
     db.all(`
-        SELECT id, invoiceNumber, customerName, customerPhone, subtotal, discount, grandTotal, paymentMethod, user, date
+        SELECT id, invoiceNumber, customerName, customerPhone, subtotal, discount, grandTotal, paymentMethod, user, status, date
         FROM sales
         ORDER BY date DESC
-        LIMIT 100
+        LIMIT 200
     `, (err, rows) => {
         if (err) return res.status(500).json({ error: err.message });
         res.json({ sales: rows });
@@ -158,6 +161,76 @@ router.get('/:id', optionalAuth, (req, res) => {
         db.all('SELECT * FROM sale_items WHERE saleId = ?', [sale.id], (err, items) => {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ sale, items });
+        });
+    });
+});
+
+// 4. Approve Sale (Admin Only)
+router.post('/:id/approve', authenticateToken, (req, res) => {
+    if (req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Access Denied: Only Admin can approve sales made by staff members' });
+    }
+    const { id } = req.params;
+
+    db.run("UPDATE sales SET status = 'APPROVED' WHERE id = ? OR invoiceNumber = ?", [id, id], function (err) {
+        if (err) return res.status(500).json({ error: err.message });
+        if (this.changes === 0) return res.status(404).json({ error: 'Sale record not found' });
+
+        res.json({ message: 'Sale successfully approved by Admin', id, status: 'APPROVED' });
+    });
+});
+
+// 5. Cancel / Reverse Sale & Restore Inventory (Admin Only)
+router.post('/:id/cancel', authenticateToken, (req, res) => {
+    if (req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Access Denied: Only Admin can cancel or reverse sales' });
+    }
+    const { id } = req.params;
+
+    db.get('SELECT * FROM sales WHERE id = ? OR invoiceNumber = ?', [id, id], (err, sale) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!sale) return res.status(404).json({ error: 'Sale not found' });
+        if (sale.status === 'CANCELLED') return res.status(400).json({ error: 'Sale is already cancelled' });
+
+        db.all('SELECT * FROM sale_items WHERE saleId = ?', [sale.id], (err, items) => {
+            if (err) return res.status(500).json({ error: err.message });
+
+            const now = Date.now();
+            db.serialize(() => {
+                db.run("UPDATE sales SET status = 'CANCELLED' WHERE id = ?", [sale.id]);
+
+                // Restore stock via SALE_RETURN transactions
+                (items || []).forEach(it => {
+                    db.run(`
+                        INSERT INTO stock_transactions (productId, productName, transactionType, quantity, unitPrice, total, balanceAfter, referenceId, notes, date, user)
+                        VALUES (?, ?, 'SALE_RETURN', ?, ?, ?, 0, ?, 'Sale cancelled by Admin', ?, ?)
+                    `, [it.productId, it.productName, it.quantity, it.unitPrice, it.total, `REV-${sale.invoiceNumber}`, now, req.user.name]);
+                });
+
+                res.json({ message: 'Sale cancelled and inventory restored to stock ledger', id: sale.id, status: 'CANCELLED' });
+            });
+        });
+    });
+});
+
+// 6. Delete Sale Record (Admin Only)
+router.delete('/:id', authenticateToken, (req, res) => {
+    if (req.user.role !== 'ADMIN') {
+        return res.status(403).json({ error: 'Access Denied: Only Admin can delete sales records' });
+    }
+    const { id } = req.params;
+
+    db.get('SELECT id FROM sales WHERE id = ? OR invoiceNumber = ?', [id, id], (err, sale) => {
+        if (err) return res.status(500).json({ error: err.message });
+        if (!sale) return res.status(404).json({ error: 'Sale not found' });
+
+        db.run('DELETE FROM sale_items WHERE saleId = ?', [sale.id], (itemErr) => {
+            if (itemErr) return res.status(500).json({ error: itemErr.message });
+
+            db.run('DELETE FROM sales WHERE id = ?', [sale.id], function (saleErr) {
+                if (saleErr) return res.status(500).json({ error: saleErr.message });
+                res.json({ message: 'Sale record deleted permanently by Admin', id: sale.id });
+            });
         });
     });
 });

@@ -34,6 +34,12 @@ class StaffManagementActivity : AppCompatActivity() {
         binding = ActivityStaffManagementBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        if (!app.sessionManager.isAdmin) {
+            Toast.makeText(this, "Access Denied: Only Admin can approve, reject, or remove staff members", Toast.LENGTH_SHORT).show()
+            finish()
+            return
+        }
+
         binding.btnBack.setOnClickListener { finish() }
 
         setupRecyclerView()
@@ -46,6 +52,7 @@ class StaffManagementActivity : AppCompatActivity() {
             onApprove = { staff ->
                 lifecycleScope.launch(Dispatchers.IO) {
                     app.repository.updateStaffStatus(staff.id, "APPROVED")
+                    com.ironparadise.gymcrm.data.network.CloudSyncManager.updateRemoteStaffStatus(applicationContext, staff.email, "APPROVED")
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@StaffManagementActivity, "Staff approved: ${staff.name}", Toast.LENGTH_SHORT).show()
                     }
@@ -54,6 +61,7 @@ class StaffManagementActivity : AppCompatActivity() {
             onReject = { staff ->
                 lifecycleScope.launch(Dispatchers.IO) {
                     app.repository.updateStaffStatus(staff.id, "REJECTED")
+                    com.ironparadise.gymcrm.data.network.CloudSyncManager.updateRemoteStaffStatus(applicationContext, staff.email, "REJECTED")
                     withContext(Dispatchers.Main) {
                         Toast.makeText(this@StaffManagementActivity, "Staff rejected: ${staff.name}", Toast.LENGTH_SHORT).show()
                     }
@@ -66,6 +74,7 @@ class StaffManagementActivity : AppCompatActivity() {
                     .setPositiveButton("Remove") { _, _ ->
                         lifecycleScope.launch(Dispatchers.IO) {
                             app.repository.deleteStaff(staff.id)
+                            com.ironparadise.gymcrm.data.network.CloudSyncManager.deleteRemoteStaff(applicationContext, staff.email)
                             withContext(Dispatchers.Main) {
                                 Toast.makeText(this@StaffManagementActivity, "Staff removed", Toast.LENGTH_SHORT).show()
                             }
