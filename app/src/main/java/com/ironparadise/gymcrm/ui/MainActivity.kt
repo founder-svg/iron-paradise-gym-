@@ -16,6 +16,10 @@ import com.ironparadise.gymcrm.ui.invoices.InvoicesFragment
 import com.ironparadise.gymcrm.ui.more.MoreFragment
 import com.ironparadise.gymcrm.ui.sales.SalesFragment
 import com.ironparadise.gymcrm.ui.stock.StockFragment
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import com.ironparadise.gymcrm.data.network.CloudSyncManager
 
 class MainActivity : AppCompatActivity() {
 
@@ -47,6 +51,11 @@ class MainActivity : AppCompatActivity() {
         // Default screen is Dashboard
         if (savedInstanceState == null) {
             loadFragment(dashboardFragment)
+        }
+
+        // Silent background cloud sync (Zero lag, non-blocking)
+        lifecycleScope.launch(Dispatchers.IO) {
+            CloudSyncManager.pullRemoteSync(this@MainActivity)
         }
     }
 

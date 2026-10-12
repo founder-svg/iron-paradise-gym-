@@ -15,6 +15,7 @@ import com.ironparadise.gymcrm.data.db.entities.UserEntity
 import com.ironparadise.gymcrm.databinding.ActivityLoginBinding
 import com.ironparadise.gymcrm.ui.MainActivity
 import com.ironparadise.gymcrm.util.AppConfig
+import com.ironparadise.gymcrm.data.network.CloudSyncManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -208,6 +209,9 @@ class LoginActivity : AppCompatActivity() {
             val id = app.repository.registerUser(newUser)
             val createdUser = newUser.copy(id = id)
 
+            // Asynchronously sync with cloud server in background
+            CloudSyncManager.registerRemoteUser(this@LoginActivity, createdUser)
+
             withContext(Dispatchers.Main) {
                 if (binding.cbRememberMe.isChecked) {
                     app.sessionManager.saveUserSession(createdUser)
@@ -317,7 +321,15 @@ class LoginActivity : AppCompatActivity() {
 
     private fun checkApprovalStatus(email: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val user = app.repository.getUserByEmail(email)
+            var user = app.repository.getUserByEmail(email)
+
+            // Check live 24/7 cloud server for real-time admin approval
+            val remoteStatus = CloudSyncManager.checkRemoteUserStatus(this@LoginActivity, email)
+            if (remoteStatus != null && user != null && remoteStatus != user.status) {
+                app.repository.updateStaffStatus(user.id, remoteStatus)
+                user = user.copy(status = remoteStatus)
+            }
+
             withContext(Dispatchers.Main) {
                 if (user != null) {
                     if (user.status == "APPROVED") {

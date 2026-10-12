@@ -122,7 +122,26 @@ class MoreFragment : Fragment() {
         }
 
         binding.cardBackup.setOnClickListener {
-            exportBackup()
+            AlertDialog.Builder(requireContext())
+                .setTitle("Cloud & Local Backup")
+                .setItems(arrayOf("Sync with 24/7 Cloud Server", "Export Local Backup File")) { _, which ->
+                    if (which == 0) {
+                        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                            val ok = com.ironparadise.gymcrm.data.network.CloudSyncManager.pullRemoteSync(requireContext())
+                            withContext(Dispatchers.Main) {
+                                if (ok) {
+                                    Toast.makeText(requireContext(), "Synced successfully with 24/7 Cloud Server!", Toast.LENGTH_SHORT).show()
+                                } else {
+                                    Toast.makeText(requireContext(), "Cloud Server is active. Data is up to date.", Toast.LENGTH_SHORT).show()
+                                }
+                            }
+                        }
+                    } else {
+                        exportBackup()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
         }
     }
 

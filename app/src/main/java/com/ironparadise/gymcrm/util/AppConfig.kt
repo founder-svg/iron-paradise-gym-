@@ -9,6 +9,7 @@ enum class AppRoleType {
 
 object AppConfig {
     const val MASTER_ADMIN_APPROVAL_CODE = "1234"
+    const val DEFAULT_SERVER_URL = "https://iron-paradise-gym-api.onrender.com"
 
     val currentAppRole: AppRoleType
         get() = try {
