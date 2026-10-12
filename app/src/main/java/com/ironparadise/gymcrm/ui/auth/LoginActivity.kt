@@ -33,6 +33,12 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Auto-clear old demo email sessions if present
+        val savedEmail = app.sessionManager.userEmail.lowercase()
+        if (savedEmail.contains("demo") || savedEmail.contains("trainer.sam") || savedEmail.contains("staff.rohit")) {
+            app.sessionManager.clearSession()
+        }
+
         // Check if already logged in and approved
         if (app.sessionManager.isLoggedIn) {
             if (app.sessionManager.isApproved) {
@@ -54,30 +60,47 @@ class LoginActivity : AppCompatActivity() {
             binding.tvPortalBadge.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
             binding.tvPortalBadge.setBackgroundResource(R.drawable.bg_badge_in_stock)
             binding.tvAuthSubtitle.text = "Staff billing, stock status & client checkout"
-            binding.btnQuickFill.text = "Fill Staff Demo (staff@ironparadise.com)"
         } else {
             binding.tvPortalBadge.text = "ADMIN PORTAL • FULL CONTROL"
             binding.tvPortalBadge.setTextColor(ContextCompat.getColor(this, R.color.accent_gold))
             binding.tvPortalBadge.setBackgroundResource(R.drawable.bg_badge_low_stock)
             binding.tvAuthSubtitle.text = "Manage inventory costs, discounts, and staff approvals"
-            binding.btnQuickFill.text = "Fill Admin Demo (admin@ironparadise.com)"
         }
     }
 
     private fun setupAuthToggle() {
-        binding.toggleAuthMode.addOnButtonCheckedListener { _, checkedId, isChecked ->
-            if (isChecked) {
-                isSignUpMode = checkedId == binding.btnTabSignUp.id
+        binding.btnTabSignIn.setOnClickListener {
+            if (isSignUpMode) {
+                isSignUpMode = false
                 updateAuthModeUI()
             }
         }
+
+        binding.btnTabSignUp.setOnClickListener {
+            if (!isSignUpMode) {
+                isSignUpMode = true
+                updateAuthModeUI()
+            }
+        }
+        updateAuthModeUI()
     }
 
     private fun updateAuthModeUI() {
-        binding.tilName.visibility = if (isSignUpMode) View.VISIBLE else View.GONE
         if (isSignUpMode) {
+            binding.btnTabSignUp.setBackgroundResource(R.drawable.bg_badge_low_stock)
+            binding.btnTabSignUp.setTextColor(ContextCompat.getColor(this, R.color.bg_black))
+            binding.btnTabSignIn.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            binding.btnTabSignIn.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+
+            binding.tilName.visibility = View.VISIBLE
             binding.btnAuthAction.text = if (isStaffApp) "CREATE STAFF ACCOUNT" else "CREATE ADMIN ACCOUNT"
         } else {
+            binding.btnTabSignIn.setBackgroundResource(R.drawable.bg_badge_low_stock)
+            binding.btnTabSignIn.setTextColor(ContextCompat.getColor(this, R.color.bg_black))
+            binding.btnTabSignUp.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+            binding.btnTabSignUp.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
+
+            binding.tilName.visibility = View.GONE
             binding.btnAuthAction.text = "SIGN IN TO CRM"
         }
     }
@@ -95,16 +118,13 @@ class LoginActivity : AppCompatActivity() {
             handleGoogleSignIn()
         }
 
-        binding.btnQuickFill.setOnClickListener {
-            if (isStaffApp) {
-                binding.etEmail.setText("staff@ironparadise.com")
-                binding.etPassword.setText("staff123")
-                binding.etName.setText("Gym Front Desk")
-            } else {
-                binding.etEmail.setText("admin@ironparadise.com")
-                binding.etPassword.setText("admin123")
-                binding.etName.setText("Gym Owner (Admin)")
-            }
+        binding.btnSwitchAccount.setOnClickListener {
+            app.sessionManager.clearSession()
+            binding.cardPendingApproval.visibility = View.GONE
+            binding.etEmail.setText("")
+            binding.etPassword.setText("")
+            binding.etName.setText("")
+            Toast.makeText(this, "Session cleared. You can now sign in or register with another account.", Toast.LENGTH_SHORT).show()
         }
 
         binding.btnRefreshApproval.setOnClickListener {
@@ -237,42 +257,36 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun handleGoogleSignIn() {
-        val defaultEmails = if (isStaffApp) {
-            arrayOf("staff.frontdesk@gmail.com", "trainer.sam@gmail.com", "staff.rohit@gmail.com", "Sign in with different Google account")
-        } else {
-            arrayOf("gym.owner.admin@gmail.com", "director.ironparadise@gmail.com", "Sign in with different Google account")
+        val container = android.widget.LinearLayout(this).apply {
+            orientation = android.widget.LinearLayout.VERTICAL
+            setPadding(50, 20, 50, 0)
         }
 
-        AlertDialog.Builder(this)
-            .setTitle("Choose Google Account")
-            .setItems(defaultEmails) { _, which ->
-                val selected = defaultEmails[which]
-                if (which == defaultEmails.size - 1) {
-                    promptCustomGoogleEmail()
-                } else {
-                    completeGoogleAuth(selected, selected.substringBefore("@").replace(".", " ").capitalizeWords())
-                }
-            }
-            .setNegativeButton("Cancel", null)
-            .show()
-    }
-
-    private fun promptCustomGoogleEmail() {
-        val input = EditText(this).apply {
-            hint = "yourname@gmail.com"
+        val etGoogleName = EditText(this).apply {
+            hint = "Full Name (e.g. John Doe)"
+            inputType = android.text.InputType.TYPE_CLASS_TEXT or android.text.InputType.TYPE_TEXT_FLAG_CAP_WORDS
+        }
+        val etGoogleEmail = EditText(this).apply {
+            hint = "Google Email (e.g. yourname@gmail.com)"
             inputType = android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
         }
 
+        container.addView(etGoogleName)
+        container.addView(etGoogleEmail)
+
         AlertDialog.Builder(this)
-            .setTitle("Enter Google Account Email")
-            .setView(input)
-            .setPositiveButton("Continue") { _, _ ->
-                val email = input.text.toString().trim()
-                if (email.contains("@")) {
-                    val name = email.substringBefore("@").replace(".", " ").capitalizeWords()
+            .setTitle("1-Tap Google Sign-In")
+            .setMessage("Enter your Google account details to sign in or create your profile:")
+            .setView(container)
+            .setPositiveButton("Sign In with Google") { _, _ ->
+                val email = etGoogleEmail.text.toString().trim().lowercase()
+                val nameInput = etGoogleName.text.toString().trim()
+                val name = if (nameInput.isNotBlank()) nameInput else email.substringBefore("@").replace(".", " ").capitalizeWords()
+
+                if (email.contains("@") && email.contains(".")) {
                     completeGoogleAuth(email, name)
                 } else {
-                    Toast.makeText(this, "Invalid Google email", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Please enter a valid Google email address", Toast.LENGTH_SHORT).show()
                 }
             }
             .setNegativeButton("Cancel", null)

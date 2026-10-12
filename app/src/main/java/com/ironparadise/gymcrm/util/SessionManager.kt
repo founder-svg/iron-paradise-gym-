@@ -79,4 +79,8 @@ class SessionManager(context: Context) {
             apply()
         }
     }
+
+    fun clearSession() {
+        logout()
+    }
 }
