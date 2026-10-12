@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:minHeight="44dp"
+    android:background="#0A0A0A">
+
+    <!-- 1. Sr.no -->
+    <TextView
+        android:id="@+id/tvTableSrNo"
+        android:layout_width="54dp"
+        android:layout_height="wrap_content"
+        android:minHeight="44dp"
+        android:background="@drawable/bg_table_data_cell"
+        android:gravity="center"
+        android:text="1"
+        android:textColor="@color/accent_gold"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <!-- 2. Date -->
+    <TextView
+        android:id="@+id/tvTableDate"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:minHeight="44dp"
+        android:background="@drawable/bg_table_data_cell"
+        android:gravity="center"
+        android:text="08/10/26"
+        android:textColor="@color/text_secondary"
+        android:textSize="11sp" />
+
+    <!-- 3. Product -->
+    <LinearLayout
+        android:layout_width="145dp"
+        android:layout_height="wrap_content"
+        android:minHeight="44dp"
+        android:background="@drawable/bg_table_data_cell"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:paddingHorizontal="6dp">
+
+        <TextView
+            android:id="@+id/tvTableProduct"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Whey Protein"
+            android:textColor="@color/text_primary"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/tvTableTypeBadge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:text="STOCK IN"
+            android:textColor="@color/text_muted"
+            android:textSize="9sp" />
+    </LinearLayout>
+
+    <!-- 4. Quantity -->
+    <TextView
+        android:id="@+id/tvTableQuantity"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:minHeight="44dp"
+        android:background="@drawable/bg_table_data_cell"
+        android:gravity="center"
+        android:text="5"
+        android:textColor="@color/accent_green"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <!-- 5. Price -->
+    <TextView
+        android:id="@+id/tvTablePrice"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:minHeight="44dp"
+        android:background="@drawable/bg_table_data_cell"
+        android:gravity="end|center_vertical"
+        android:paddingEnd="6dp"
+        android:text="₹100"
+        android:textColor="@color/text_primary"
+        android:textSize="12sp" />
+
+    <!-- 6. Total -->
+    <TextView
+        android:id="@+id/tvTableTotal"
+        android:layout_width="85dp"
+        android:layout_height="wrap_content"
+        android:minHeight="44dp"
+        android:background="@drawable/bg_table_data_cell"
+        android:gravity="end|center_vertical"
+        android:paddingEnd="6dp"
+        android:text="₹500"
+        android:textColor="@color/text_primary"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <!-- 7. Balance -->
+    <TextView
+        android:id="@+id/tvTableBalance"
+        android:layout_width="75dp"
+        android:layout_height="wrap_content"
+        android:minHeight="44dp"
+        android:background="@drawable/bg_table_data_cell"
+        android:gravity="center"
+        android:text="3"
+        android:textColor="@color/accent_green"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+</LinearLayout>

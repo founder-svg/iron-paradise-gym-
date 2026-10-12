@@ -1,0 +1,18 @@
+# Gradle & Build Caches
+.gradle/
+build/
+app/build/
+*.iml
+.idea/
+local.properties
+.DS_Store
+
+# Server Dependencies & Data
+server/node_modules/
+server/data/*.db*
+server/uploads/*
+!server/uploads/.gitkeep
+server/.env
+
+# Temporary logs
+*.log

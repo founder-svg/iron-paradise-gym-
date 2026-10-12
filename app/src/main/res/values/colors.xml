@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Iron Paradise Brand Theme (High Contrast Dark Aesthetic) -->
+    <color name="bg_black">#000000</color>
+    <color name="bg_dark">#0D0D0D</color>
+    <color name="bg_card">#161616</color>
+    <color name="bg_card_elevated">#202020</color>
+    <color name="border_color">#2A2A2A</color>
+    <color name="border_light">#383838</color>
+
+    <!-- Typography -->
+    <color name="text_primary">#FFFFFF</color>
+    <color name="text_secondary">#A0A0A0</color>
+    <color name="text_muted">#666666</color>
+
+    <!-- Brand Accents -->
+    <color name="accent_gold">#FFB300</color>
+    <color name="accent_gold_dark">#C68400</color>
+    <color name="accent_silver">#E0E0E0</color>
+    <color name="accent_red">#FF4D4D</color>
+    <color name="accent_red_dark">#B71C1C</color>
+    <color name="accent_green">#00E676</color>
+    <color name="accent_green_dark">#00A854</color>
+    <color name="accent_blue">#2979FF</color>
+    
+    <!-- Status Badges -->
+    <color name="badge_in_stock_bg">#1B3820</color>
+    <color name="badge_in_stock_text">#00E676</color>
+    <color name="badge_low_stock_bg">#3D2E00</color>
+    <color name="badge_low_stock_text">#FFB300</color>
+    <color name="badge_out_of_stock_bg">#3E1818</color>
+    <color name="badge_out_of_stock_text">#FF4D4D</color>
+
+    <color name="transparent">#00000000</color>
+    <color name="ripple_white">#22FFFFFF</color>
+</resources>
