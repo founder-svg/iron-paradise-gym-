@@ -34,11 +34,7 @@ class StaffManagementActivity : AppCompatActivity() {
         binding = ActivityStaffManagementBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (!app.sessionManager.isAdmin) {
-            Toast.makeText(this, "Access Denied: Only Admin can approve, reject, or remove staff members", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
+
 
         binding.btnBack.setOnClickListener { finish() }
 

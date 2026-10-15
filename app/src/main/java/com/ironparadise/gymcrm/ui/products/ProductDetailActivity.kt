@@ -92,19 +92,12 @@ class ProductDetailActivity : AppCompatActivity() {
         binding.tvCurrentBalance.text = "$stock ${product.unit.ifBlank { "units" }}"
         binding.tvSupplier.text = "Generic Supplier"
 
-        // Purchase Price & Financials visibility (Admin Only)
-        if (isAdmin) {
-            binding.rowPurchasePrice.visibility = View.VISIBLE
-            binding.dividerPurchasePrice.visibility = View.VISIBLE
-            binding.tvPurchasePrice.text = Formatters.formatCurrency(product.purchasePrice)
-            binding.layoutBottomActions.visibility = View.VISIBLE
-            binding.tabStockHistory.visibility = View.VISIBLE
-        } else {
-            binding.rowPurchasePrice.visibility = View.GONE
-            binding.dividerPurchasePrice.visibility = View.GONE
-            binding.layoutBottomActions.visibility = View.GONE
-            binding.tabStockHistory.visibility = View.GONE
-        }
+        // Purchase Price & Financials visibility (Available to all users)
+        binding.rowPurchasePrice.visibility = View.VISIBLE
+        binding.dividerPurchasePrice.visibility = View.VISIBLE
+        binding.tvPurchasePrice.text = Formatters.formatCurrency(product.purchasePrice)
+        binding.layoutBottomActions.visibility = View.VISIBLE
+        binding.tabStockHistory.visibility = View.VISIBLE
 
         // Load photo
         if (!product.imageUri.isNullOrBlank()) {

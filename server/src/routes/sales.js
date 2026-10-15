@@ -18,9 +18,7 @@ router.post('/', optionalAuth, (req, res) => {
         return res.status(400).json({ error: 'At least one item is required in the sale' });
     }
 
-    const isStaff = !req.user || req.user.role === 'STAFF';
-    // Rule: Staff cannot grant discounts!
-    const effectiveDiscount = isStaff ? 0.0 : Math.max(0.0, parseFloat(discount) || 0.0);
+    const effectiveDiscount = Math.max(0.0, parseFloat(discount) || 0.0);
     const saleUser = req.user ? req.user.name : 'Gym Front Desk';
 
     // Verify all products and check stock availability

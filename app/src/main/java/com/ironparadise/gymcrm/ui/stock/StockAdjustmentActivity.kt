@@ -40,12 +40,7 @@ class StockAdjustmentActivity : AppCompatActivity() {
         binding = ActivityStockAdjustmentBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Admin check
-        if (!app.sessionManager.isAdmin) {
-            Toast.makeText(this, "Admin permission required for stock adjustments", Toast.LENGTH_LONG).show()
-            finish()
-            return
-        }
+
 
         binding.btnBack.setOnClickListener { finish() }
 

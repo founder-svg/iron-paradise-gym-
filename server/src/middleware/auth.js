@@ -25,8 +25,8 @@ function authenticateToken(req, res, next) {
 }
 
 function requireAdmin(req, res, next) {
-    if (!req.user || req.user.role !== 'ADMIN') {
-        return res.status(403).json({ error: 'Access denied. Admin privileges required.' });
+    if (!req.user || !['ADMIN', 'STAFF'].includes(req.user.role)) {
+        return res.status(403).json({ error: 'Access denied. Valid account required.' });
     }
     next();
 }

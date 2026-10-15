@@ -138,6 +138,7 @@ class GymRepository(private val db: AppDatabase) {
         val product = productDao.getProductById(productId)
         if (product != null) {
             com.ironparadise.gymcrm.util.ImageHelper.deleteImageFile(product.imageUri)
+            stockDao.deleteTransactionsForProduct(productId)
             productDao.deleteProductById(productId)
         }
     }

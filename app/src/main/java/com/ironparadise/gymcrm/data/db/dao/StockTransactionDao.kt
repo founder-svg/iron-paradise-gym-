@@ -58,4 +58,7 @@ interface StockTransactionDao {
         FROM stock_transactions
     """)
     fun getTotalStockUnits(): Flow<Int>
+
+    @Query("DELETE FROM stock_transactions WHERE productId = :productId")
+    suspend fun deleteTransactionsForProduct(productId: String)
 }

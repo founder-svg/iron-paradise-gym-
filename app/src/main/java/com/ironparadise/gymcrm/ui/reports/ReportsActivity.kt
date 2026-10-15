@@ -27,12 +27,7 @@ class ReportsActivity : AppCompatActivity() {
         binding = ActivityReportsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Only Admin can see financial profit reports
-        if (!app.sessionManager.isAdmin) {
-            Toast.makeText(this, "Admin permission required for financial profit reports", Toast.LENGTH_LONG).show()
-            finish()
-            return
-        }
+
 
         binding.btnBack.setOnClickListener { finish() }
 

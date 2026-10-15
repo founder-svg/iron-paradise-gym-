@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="goldGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F5A623" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0D0F12" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="30%" stop-color="#F5A623"/>
+      <stop offset="100%" stop-color="#D48810"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="110" fill="#0D0F12"/>
+  <circle cx="256" cy="256" r="230" fill="url(#goldGlow)"/>
+  <circle cx="256" cy="256" r="215" fill="none" stroke="url(#goldGrad)" stroke-width="14" stroke-dasharray="16 8"/>
+  <circle cx="256" cy="256" r="185" fill="#161A22" stroke="#222938" stroke-width="4"/>
+  <!-- Dumbbell Icon -->
+  <g fill="url(#goldGrad)">
+    <rect x="236" y="160" width="40" height="192" rx="8" transform="rotate(-45 256 256)"/>
+    <rect x="140" y="150" width="36" height="80" rx="8" transform="rotate(-45 158 190)"/>
+    <rect x="120" y="170" width="24" height="60" rx="6" transform="rotate(-45 132 200)"/>
+    <rect x="336" y="282" width="36" height="80" rx="8" transform="rotate(-45 354 322)"/>
+    <rect x="368" y="282" width="24" height="60" rx="6" transform="rotate(-45 380 312)"/>
+  </g>
+  <text x="256" y="420" font-family="-apple-system, system-ui, sans-serif" font-size="34" font-weight="900" fill="#F5A623" text-anchor="middle" letter-spacing="4">IRON PARADISE</text>
+</svg>

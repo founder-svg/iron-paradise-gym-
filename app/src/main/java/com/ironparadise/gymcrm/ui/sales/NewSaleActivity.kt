@@ -57,16 +57,10 @@ class NewSaleActivity : AppCompatActivity() {
     }
 
     private fun setupRoleRestrictions() {
-        val isAdmin = app.sessionManager.isAdmin
-        if (!isAdmin) {
-            // Staff can only sell at original decided price, cannot edit sale price
-            binding.etSalePrice.isEnabled = false
-            binding.etSalePrice.isFocusable = false
-            // Staff cannot provide custom discounts
-            binding.layoutDiscountRow.visibility = View.GONE
-            binding.etDiscount.setText("0")
-            binding.etDiscount.isEnabled = false
-        }
+        binding.etSalePrice.isEnabled = true
+        binding.etSalePrice.isFocusable = true
+        binding.layoutDiscountRow.visibility = View.VISIBLE
+        binding.etDiscount.isEnabled = true
     }
 
     private fun setupPaymentSpinner() {

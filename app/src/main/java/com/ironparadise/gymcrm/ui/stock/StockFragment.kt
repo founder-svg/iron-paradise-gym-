@@ -51,22 +51,30 @@ class StockFragment : Fragment() {
     }
 
     private fun setupRecyclerViews() {
-        stockAdapter = ProductStockAdapter { item ->
-            val intent = Intent(requireContext(), com.ironparadise.gymcrm.ui.products.ProductDetailActivity::class.java).apply {
-                putExtra("EXTRA_PRODUCT_ID", item.product.id)
+        stockAdapter = ProductStockAdapter(
+            onProductClick = { item ->
+                val intent = Intent(requireContext(), com.ironparadise.gymcrm.ui.products.ProductDetailActivity::class.java).apply {
+                    putExtra("EXTRA_PRODUCT_ID", item.product.id)
+                }
+                startActivity(intent)
+            },
+            onEditClick = { item ->
+                val intent = Intent(requireContext(), com.ironparadise.gymcrm.ui.products.AddEditProductActivity::class.java).apply {
+                    putExtra("EXTRA_PRODUCT_ID", item.product.id)
+                }
+                startActivity(intent)
+            },
+            onDeleteClick = { item ->
+                confirmDeleteProduct(item.product.id, item.product.name)
             }
-            startActivity(intent)
-        }
+        )
         binding.rvProducts.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = stockAdapter
         }
 
         tableAdapter = InventoryTableAdapter { item ->
-            val intent = Intent(requireContext(), StockLedgerActivity::class.java).apply {
-                putExtra("EXTRA_PRODUCT_ID", item.productId)
-            }
-            startActivity(intent)
+            showInventoryRowActionDialog(item)
         }
         binding.rvInventoryTable.apply {
             layoutManager = LinearLayoutManager(requireContext())
@@ -74,20 +82,69 @@ class StockFragment : Fragment() {
         }
     }
 
+    private fun showInventoryRowActionDialog(item: com.ironparadise.gymcrm.data.db.entities.StockTransactionEntity) {
+        val options = arrayOf(
+            "✏️ Edit Supplement & Stock",
+            "🗑️ Remove Supplement Completely",
+            "➕ Stock In (Add Units)",
+            "⚖️ Adjust Stock Count",
+            "📜 View Stock Ledger History"
+        )
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle(item.productName)
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> {
+                        startActivity(Intent(requireContext(), com.ironparadise.gymcrm.ui.products.AddEditProductActivity::class.java).apply {
+                            putExtra("EXTRA_PRODUCT_ID", item.productId)
+                        })
+                    }
+                    1 -> {
+                        confirmDeleteProduct(item.productId, item.productName)
+                    }
+                    2 -> {
+                        startActivity(Intent(requireContext(), StockInActivity::class.java).apply {
+                            putExtra("EXTRA_PRODUCT_ID", item.productId)
+                        })
+                    }
+                    3 -> {
+                        startActivity(Intent(requireContext(), StockAdjustmentActivity::class.java))
+                    }
+                    4 -> {
+                        startActivity(Intent(requireContext(), StockLedgerActivity::class.java).apply {
+                            putExtra("EXTRA_PRODUCT_ID", item.productId)
+                        })
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun confirmDeleteProduct(productId: String, productName: String) {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("Remove Supplement")
+            .setMessage("Are you sure you want to completely remove \"$productName\" from inventory and catalog? This will delete the product and its stock history.")
+            .setPositiveButton("Remove Completely") { _, _ ->
+                lifecycleScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                    app.repository.deleteProduct(productId)
+                    kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                        android.widget.Toast.makeText(requireContext(), "Supplement removed from inventory", android.widget.Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
     private fun setupListeners() {
-        val isAdmin = app.sessionManager.isAdmin
-        if (!isAdmin) {
-            binding.btnStockInHeader.visibility = View.GONE
-            binding.fabAddProduct.visibility = View.GONE
-        } else {
-            binding.btnStockInHeader.visibility = View.VISIBLE
-            binding.fabAddProduct.visibility = View.VISIBLE
-            binding.btnStockInHeader.setOnClickListener {
-                startActivity(Intent(requireContext(), StockInActivity::class.java))
-            }
-            binding.fabAddProduct.setOnClickListener {
-                startActivity(Intent(requireContext(), com.ironparadise.gymcrm.ui.products.AddEditProductActivity::class.java))
-            }
+        binding.btnStockInHeader.visibility = View.VISIBLE
+        binding.fabAddProduct.visibility = View.VISIBLE
+        binding.btnStockInHeader.setOnClickListener {
+            startActivity(Intent(requireContext(), StockInActivity::class.java))
+        }
+        binding.fabAddProduct.setOnClickListener {
+            startActivity(Intent(requireContext(), com.ironparadise.gymcrm.ui.products.AddEditProductActivity::class.java))
         }
 
         binding.toggleViewMode.addOnButtonCheckedListener { _, checkedId, isChecked ->

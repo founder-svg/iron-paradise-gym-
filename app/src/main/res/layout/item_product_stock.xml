@@ -98,6 +98,34 @@
                 android:background="@drawable/bg_badge_in_stock"
                 android:paddingHorizontal="8dp"
                 android:paddingVertical="3dp" />
+
+            <!-- Quick Edit & Remove Stock Actions -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="6dp">
+
+                <ImageButton
+                    android:id="@+id/btnEditStock"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_edit"
+                    app:tint="@color/accent_gold"
+                    android:contentDescription="Edit Product &amp; Stock" />
+
+                <ImageButton
+                    android:id="@+id/btnDeleteStock"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="6dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_delete"
+                    app:tint="@color/accent_red"
+                    android:contentDescription="Remove Product" />
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

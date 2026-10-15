@@ -64,8 +64,8 @@ class SessionManager(context: Context) {
             UserRole.STAFF
         }
 
-    val isAdmin: Boolean get() = !AppConfig.isStaffApp && userRole == UserRole.ADMIN
-    val isStaff: Boolean get() = AppConfig.isStaffApp || userRole == UserRole.STAFF
+    val isAdmin: Boolean get() = true
+    val isStaff: Boolean get() = true
 
     fun logout() {
         prefs.edit().apply {

@@ -40,29 +40,16 @@ function getProductsWithStock(callback) {
     });
 }
 
-// 1. Get all products (Role-sensitive: staff cannot see purchasePrice!)
+// 1. Get all products (Visible to both admin and staff)
 router.get('/', optionalAuth, (req, res) => {
-    const isAdmin = req.user && req.user.role === 'ADMIN';
-
     getProductsWithStock((err, products) => {
         if (err) return res.status(500).json({ error: err.message });
-
-        // If not admin, mask/hide purchasePrice
-        const responseProducts = products.map(p => {
-            if (!isAdmin) {
-                const { purchasePrice, ...staffSafeProduct } = p;
-                return staffSafeProduct;
-            }
-            return p;
-        });
-
-        res.json({ products: responseProducts });
+        res.json({ products });
     });
 });
 
 // 2. Get single product detail
 router.get('/:id', optionalAuth, (req, res) => {
-    const isAdmin = req.user && req.user.role === 'ADMIN';
     const { id } = req.params;
 
     db.get('SELECT * FROM products WHERE id = ?', [id], (err, product) => {
@@ -85,10 +72,6 @@ router.get('/:id', optionalAuth, (req, res) => {
                 isSoldOut: currentStock <= 0,
                 isLowStock: currentStock > 0 && currentStock <= product.minimumStock
             };
-
-            if (!isAdmin) {
-                delete fullProduct.purchasePrice;
-            }
 
             res.json({ product: fullProduct });
         });

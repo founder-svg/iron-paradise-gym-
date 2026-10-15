@@ -333,7 +333,7 @@
         android:layout_margin="20dp"
         android:contentDescription="Add Product"
         android:src="@drawable/ic_add"
-        app:backgroundTint="#FFFFFF"
-        app:tint="#111111" />
+        app:backgroundTint="@color/accent_gold"
+        app:tint="@color/bg_black" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -36,14 +36,9 @@ class ProductsListActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        val isAdmin = app.sessionManager.isAdmin
-        if (!isAdmin) {
-            binding.btnAddProduct.visibility = android.view.View.GONE
-        } else {
-            binding.btnAddProduct.visibility = android.view.View.VISIBLE
-            binding.btnAddProduct.setOnClickListener {
-                startActivity(Intent(this, AddEditProductActivity::class.java))
-            }
+        binding.btnAddProduct.visibility = android.view.View.VISIBLE
+        binding.btnAddProduct.setOnClickListener {
+            startActivity(Intent(this, AddEditProductActivity::class.java))
         }
 
         setupRecyclerView()
@@ -51,9 +46,8 @@ class ProductsListActivity : AppCompatActivity() {
     }
 
     private fun setupRecyclerView() {
-        val isAdmin = app.sessionManager.isAdmin
         adapter = ProductManageAdapter(
-            isAdmin = isAdmin,
+            isAdmin = true,
             onItemClick = { product ->
                 val intent = Intent(this, ProductDetailActivity::class.java).apply {
                     putExtra("EXTRA_PRODUCT_ID", product.id)

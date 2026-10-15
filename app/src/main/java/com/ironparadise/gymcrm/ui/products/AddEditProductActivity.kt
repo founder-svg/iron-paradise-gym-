@@ -56,12 +56,6 @@ class AddEditProductActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        if (!app.sessionManager.isAdmin) {
-            Toast.makeText(this, "Access Denied: Only Admin can add or edit products", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-
         setupPhotoButtons()
         setupFormulaWatchers()
 
@@ -149,16 +143,19 @@ class AddEditProductActivity : AppCompatActivity() {
         updatePhotoPreview()
     }
 
+    private var initialStockCount: Int = 0
+
     private fun setupEditMode(productId: String) {
         binding.tvTitle.text = "EDIT PRODUCT / SUPPLEMENT"
-        binding.btnSaveProduct.text = "UPDATE PRODUCT DETAILS"
+        binding.btnSaveProduct.text = "UPDATE PRODUCT & STOCK"
         binding.btnDeleteProduct.visibility = View.VISIBLE
 
         binding.etProductId.isEnabled = false
         binding.tilProductId.helperText = "Product ID cannot be changed"
 
-        binding.tilTotalQuantity.visibility = View.GONE
-        binding.cardInventoryValue.visibility = View.GONE
+        binding.tilTotalQuantity.visibility = View.VISIBLE
+        binding.tilTotalQuantity.hint = "Total In-Stock Quantity"
+        binding.cardInventoryValue.visibility = View.VISIBLE
 
         lifecycleScope.launch(Dispatchers.IO) {
             val itemWithStock = app.repository.getProductWithStock(productId)
@@ -167,6 +164,7 @@ class AddEditProductActivity : AppCompatActivity() {
                     val p = itemWithStock.product
                     existingProduct = p
                     currentImageUri = p.imageUri
+                    initialStockCount = itemWithStock.currentStock
 
                     binding.etProductId.setText(p.id)
                     binding.etProductName.setText(p.name)
@@ -176,12 +174,14 @@ class AddEditProductActivity : AppCompatActivity() {
                     binding.etUnit.setText(p.unit)
                     binding.etSellingPrice.setText(if (p.sellingPrice > 0) p.sellingPrice.toString() else "")
                     binding.etPurchasePrice.setText(if (p.purchasePrice > 0) p.purchasePrice.toString() else "")
+                    binding.etTotalQuantity.setText(initialStockCount.toString())
                     binding.etMinimumStock.setText(p.minimumStock.toString())
 
                     binding.tvEditStockNote.visibility = View.VISIBLE
-                    binding.tvEditStockNote.text = "Current Stock: ${itemWithStock.currentStock} ${p.unit}. Use Stock In or Stock Adjustment to change quantities."
+                    binding.tvEditStockNote.text = "Current Stock: $initialStockCount ${p.unit}. You can edit stock directly or use Stock In / Adjustment."
 
                     updatePhotoPreview()
+                    updateLiveInventoryTotal()
                 } else {
                     Toast.makeText(this@AddEditProductActivity, "Product not found", Toast.LENGTH_SHORT).show()
                     finish()
@@ -194,7 +194,7 @@ class AddEditProductActivity : AppCompatActivity() {
         val watcher = object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (!isEditMode) updateLiveInventoryTotal()
+                updateLiveInventoryTotal()
             }
             override fun afterTextChanged(s: Editable?) {}
         }
@@ -265,8 +265,23 @@ class AddEditProductActivity : AppCompatActivity() {
                 )
                 app.repository.updateProduct(updated)
                 com.ironparadise.gymcrm.data.network.CloudSyncManager.pushProduct(applicationContext, updated)
+
+                if (totalQuantity != initialStockCount) {
+                    try {
+                        app.repository.recordStockAdjustment(
+                            productId = id,
+                            physicalCount = totalQuantity,
+                            reason = "Direct Stock Edit in Supplement Master",
+                            notes = "Stock adjusted from $initialStockCount to $totalQuantity",
+                            user = app.sessionManager.userName
+                        )
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+
                 withContext(Dispatchers.Main) {
-                    Toast.makeText(this@AddEditProductActivity, "Supplement updated successfully", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AddEditProductActivity, "Supplement & stock updated successfully", Toast.LENGTH_SHORT).show()
                     finish()
                 }
             } else {

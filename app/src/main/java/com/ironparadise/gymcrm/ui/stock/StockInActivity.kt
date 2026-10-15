@@ -33,11 +33,7 @@ class StockInActivity : AppCompatActivity() {
         binding = ActivityStockInBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        if (!app.sessionManager.isAdmin) {
-            Toast.makeText(this, "Access Denied: Stock In requires Admin permissions", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
+
 
         setupHeader()
         setupListeners()

@@ -41,15 +41,9 @@ class CustomerDetailActivity : AppCompatActivity() {
 
         binding.btnBack.setOnClickListener { finish() }
 
-        val isAdmin = app.sessionManager.isAdmin
-        if (isAdmin) {
-            binding.btnEditCustomer.visibility = View.VISIBLE
-            binding.btnDeleteCustomer.visibility = View.VISIBLE
-            setupAdminCustomerActions()
-        } else {
-            binding.btnEditCustomer.visibility = View.GONE
-            binding.btnDeleteCustomer.visibility = View.GONE
-        }
+        binding.btnEditCustomer.visibility = View.VISIBLE
+        binding.btnDeleteCustomer.visibility = View.VISIBLE
+        setupAdminCustomerActions()
 
         val customerId = intent.getLongExtra("EXTRA_CUSTOMER_ID", -1L)
         if (customerId != -1L) {

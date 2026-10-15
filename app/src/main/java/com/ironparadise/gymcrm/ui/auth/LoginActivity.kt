@@ -55,17 +55,10 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun setupPortalTheme() {
-        if (isStaffApp) {
-            binding.tvPortalBadge.text = "STAFF PORTAL • FRONT DESK"
-            binding.tvPortalBadge.setTextColor(ContextCompat.getColor(this, R.color.accent_green))
-            binding.tvPortalBadge.setBackgroundResource(R.drawable.bg_badge_in_stock)
-            binding.tvAuthSubtitle.text = "Staff billing, stock status & client checkout"
-        } else {
-            binding.tvPortalBadge.text = "ADMIN PORTAL • FULL CONTROL"
-            binding.tvPortalBadge.setTextColor(ContextCompat.getColor(this, R.color.accent_gold))
-            binding.tvPortalBadge.setBackgroundResource(R.drawable.bg_badge_low_stock)
-            binding.tvAuthSubtitle.text = "Manage inventory costs, discounts, and staff approvals"
-        }
+        binding.tvPortalBadge.text = "IRON PARADISE GYM • CRM PORTAL"
+        binding.tvPortalBadge.setTextColor(ContextCompat.getColor(this, R.color.accent_gold))
+        binding.tvPortalBadge.setBackgroundResource(R.drawable.bg_badge_low_stock)
+        binding.tvAuthSubtitle.text = "Full access: inventory, sales, catalog & reporting"
     }
 
     private fun setupAuthToggle() {
@@ -93,7 +86,7 @@ class LoginActivity : AppCompatActivity() {
             binding.btnTabSignIn.setTextColor(ContextCompat.getColor(this, R.color.text_secondary))
 
             binding.tilName.visibility = View.VISIBLE
-            binding.btnAuthAction.text = if (isStaffApp) "CREATE STAFF ACCOUNT" else "CREATE ADMIN ACCOUNT"
+            binding.btnAuthAction.text = "CREATE CRM ACCOUNT"
         } else {
             binding.btnTabSignIn.setBackgroundResource(R.drawable.bg_badge_low_stock)
             binding.btnTabSignIn.setTextColor(ContextCompat.getColor(this, R.color.bg_black))
@@ -213,8 +206,8 @@ class LoginActivity : AppCompatActivity() {
                 return@launch
             }
 
-            val role = if (isStaffApp) "STAFF" else "ADMIN"
-            val status = if (isStaffApp) "PENDING" else "APPROVED"
+            val role = "ADMIN"
+            val status = "APPROVED"
 
             val newUser = UserEntity(
                 email = email,
@@ -237,21 +230,12 @@ class LoginActivity : AppCompatActivity() {
                     app.sessionManager.saveUserSession(createdUser)
                 }
 
-                if (status == "PENDING") {
-                    showPendingApprovalState(email)
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Staff account created! Awaiting Admin approval.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                } else {
-                    Toast.makeText(
-                        this@LoginActivity,
-                        "Admin account created successfully!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    navigateToMain()
-                }
+                Toast.makeText(
+                    this@LoginActivity,
+                    "Welcome, ${createdUser.name}! Account created.",
+                    Toast.LENGTH_SHORT
+                ).show()
+                navigateToMain()
             }
         }
     }

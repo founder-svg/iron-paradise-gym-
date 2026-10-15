@@ -12,7 +12,9 @@ import com.ironparadise.gymcrm.databinding.ItemProductStockBinding
 import com.ironparadise.gymcrm.util.Formatters
 
 class ProductStockAdapter(
-    private val onProductClick: (ProductWithStock) -> Unit
+    private val onProductClick: (ProductWithStock) -> Unit,
+    private val onEditClick: ((ProductWithStock) -> Unit)? = null,
+    private val onDeleteClick: ((ProductWithStock) -> Unit)? = null
 ) : ListAdapter<ProductWithStock, ProductStockAdapter.ViewHolder>(DIFF_CALLBACK) {
 
     inner class ViewHolder(private val binding: ItemProductStockBinding) :
@@ -52,6 +54,14 @@ class ProductStockAdapter(
                     binding.tvStockStatusBadge.setTextColor(ContextCompat.getColor(context, R.color.badge_in_stock_text))
                     binding.tvStockStatusBadge.setBackgroundResource(R.drawable.bg_badge_in_stock)
                 }
+            }
+
+            binding.btnEditStock.setOnClickListener {
+                onEditClick?.invoke(item)
+            }
+
+            binding.btnDeleteStock.setOnClickListener {
+                onDeleteClick?.invoke(item)
             }
 
             binding.root.setOnClickListener {

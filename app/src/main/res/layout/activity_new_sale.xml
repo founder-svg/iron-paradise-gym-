@@ -437,7 +437,7 @@
             android:textColor="@color/bg_black"
             android:textStyle="bold"
             android:textSize="14sp"
-            app:backgroundTint="@color/text_primary"
+            app:backgroundTint="@color/accent_gold"
             app:cornerRadius="12dp" />
 
     </LinearLayout>

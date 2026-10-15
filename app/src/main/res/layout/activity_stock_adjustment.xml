@@ -220,7 +220,7 @@
             android:text="APPLY STOCK ADJUSTMENT"
             android:textColor="@color/bg_black"
             android:textStyle="bold"
-            app:backgroundTint="@color/text_primary"
+            app:backgroundTint="@color/accent_gold"
             app:cornerRadius="12dp" />
 
     </LinearLayout>

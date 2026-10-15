@@ -42,7 +42,7 @@
             android:text="+ Product"
             android:textColor="@color/bg_black"
             android:textStyle="bold"
-            app:backgroundTint="@color/text_primary"
+            app:backgroundTint="@color/accent_gold"
             app:cornerRadius="8dp" />
     </LinearLayout>
 

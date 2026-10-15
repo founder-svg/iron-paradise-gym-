@@ -108,8 +108,8 @@
         android:layout_height="64dp"
         android:background="@color/bg_dark"
         app:menu="@menu/bottom_nav_menu"
-        app:itemIconTint="@color/text_primary"
-        app:itemTextColor="@color/text_primary"
+        app:itemIconTint="@color/nav_item_color"
+        app:itemTextColor="@color/nav_item_color"
         app:labelVisibilityMode="labeled" />
 
 </LinearLayout>

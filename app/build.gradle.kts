@@ -46,12 +46,12 @@ android {
         create("admin") {
             dimension = "role"
             applicationIdSuffix = ".admin"
-            manifestPlaceholders["appName"] = "Iron Paradise Gym (Admin)"
+            manifestPlaceholders["appName"] = "Iron Paradise Gym CRM"
         }
         create("staff") {
             dimension = "role"
             applicationIdSuffix = ".staff"
-            manifestPlaceholders["appName"] = "Iron Paradise Gym (Staff)"
+            manifestPlaceholders["appName"] = "Iron Paradise Gym CRM"
         }
     }
 }

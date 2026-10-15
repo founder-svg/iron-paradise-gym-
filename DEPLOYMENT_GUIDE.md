@@ -10,17 +10,18 @@ Based on your system design:
 
 ```
                   ┌────────────────────────────────────────────────────────┐
-                  │              Android APK (5 - 7 Users)                 │
-                  │  👑 Admin APK (Full control, Stock In, margins, approvals)
-                  │  🏋️ Staff APK (Sold Out badge, MRP only, billing)      │
+                  │          Multi-Device Access (Android & Apple iOS)     │
+                  │  📱 Android APK: Admin & Staff Universal Build         │
+                  │  🍎 Apple iOS / iPad: PWA (1-Click WhatsApp Install)   │
+                  │  💻 Desktop Web: Chrome / Safari / Edge Dashboard      │
                   └───────────────────────────┬────────────────────────────┘
-                                              │ REST API / JWT
+                                              │ REST API / JWT / PWA
                                               ▼
                   ┌────────────────────────────────────────────────────────┐
                   │             Secure Cloud Backend (Node.js)             │
                   │  • Authentication & Persistent Session Memory          │
-                  │  • Role Enforcement & Staff Sign-Up Approvals          │
-                  │  • Stock Deductions & Inventory Calculation            │
+                  │  • Unified Admin & Staff Permissions                   │
+                  │  • Stock Management: Add, Edit, Delete, Stock In       │
                   │  • Discount Controls & Profit Analytics                │
                   └───────────────┬────────────────────────┬───────────────┘
                                   │                        │
@@ -30,6 +31,41 @@ Based on your system design:
                   │ Business & Client Data │      │ Supplement Photos/PDFs │
                   └────────────────────────┘      └────────────────────────┘
 ```
+
+---
+
+## 🍎 Apple iOS Installation & WhatsApp 1-Click Sharing
+
+Apple devices (iPhones & iPads) do not permit direct `.apk` installations from WhatsApp due to iOS sandbox security policies. To give iPhone users an immediate native app experience without paying $99/year for Apple Developer certs:
+
+### 🌐 Instant GitHub Domain for WhatsApp Sharing:
+Your repository's free, permanent GitHub domain is:
+👉 **`https://founder-svg.github.io/iron-paradise-gym-/`**
+
+#### How to Activate GitHub Pages (1-Time Setup in 10 Seconds):
+1. Go to your repository on GitHub: [founder-svg/iron-paradise-gym-](https://github.com/founder-svg/iron-paradise-gym-).
+2. Click **Settings** (top tab) → **Pages** (in the left sidebar).
+3. Under **Branch**, select **`main`** branch and choose **`/docs`** folder.
+4. Click **Save**.
+5. GitHub will immediately publish your web portal & iOS app at:
+   **`https://founder-svg.github.io/iron-paradise-gym-/`**
+
+---
+
+### 📲 How to Install on iPhone via WhatsApp:
+1. **Share on WhatsApp**:
+   - Send the link: `https://founder-svg.github.io/iron-paradise-gym-/`
+   - Or tap the green **"📲 Share to WhatsApp"** button inside the portal.
+2. **Install on iPhone in 5 Seconds**:
+   - The user opens the link in **Safari**.
+   - Tap the **Share** button (the square with an arrow pointing up ⬆️ at the bottom of the screen).
+   - Scroll down and tap **"Add to Home Screen"**.
+   - Tap **"Add"** in the top-right corner.
+3. **Result**:
+   - An **"Iron Paradise"** gold icon appears on their iPhone home screen.
+   - Launches in full-screen standalone mode (no Safari address bar).
+   - Complies with 100% of Apple's security checks and iOS sandboxing.
+   - Offers real-time Stock & Inventory management (Add, Edit, Remove, Stock In), financial reports, and downloads for Android APKs.
 
 ---
 
@@ -62,30 +98,39 @@ If you have a Linux VPS (DigitalOcean, Hetzner, AWS Lightsail, Linode, Contabo):
 ### Using Docker Compose (Recommended)
 
 1. SSH into your VPS:
+
    ```bash
    ssh root@your_vps_ip
    ```
+
 2. Clone the repository:
+
    ```bash
    git clone https://github.com/founder-svg/iron-paradise-gym-.git
    cd iron-paradise-gym-/server
    ```
+
 3. Run the container in the background:
+
    ```bash
    docker compose up -d
    ```
+
 4. Your server will run **24/7** and automatically restart on server reboots.
 5. Access your dashboard at `http://your_vps_ip:5000`.
 
 ### Using PM2 Process Manager (Alternative)
 
 1. Install Node.js and PM2 on the VPS:
+
    ```bash
    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
    sudo apt-get install -y nodejs
    sudo npm install -g pm2
    ```
+
 2. Navigate to the server folder and start:
+
    ```bash
    cd iron-paradise-gym-/server
    npm install

@@ -52,13 +52,7 @@ class MoreFragment : Fragment() {
 
     private fun setupUserProfile() {
         binding.tvCurrentUserName.text = app.sessionManager.userName
-        val isAdmin = app.sessionManager.isAdmin
-        val role = app.sessionManager.userRole
-        binding.tvCurrentUserRole.text = if (isAdmin) {
-            "ROLE: ADMIN (Full Control & Financials)"
-        } else {
-            "ROLE: STAFF (Front Desk & Billing)"
-        }
+        binding.tvCurrentUserRole.text = "ROLE: FULL ACCESS (All CRM Features Enabled)"
 
         binding.btnSwitchRole.setOnClickListener {
             promptLogout()
@@ -67,25 +61,19 @@ class MoreFragment : Fragment() {
             promptLogout()
         }
 
-        // Role-based visibility
-        if (!isAdmin) {
-            binding.cardStockAdjustment.visibility = View.GONE
-            binding.cardReports.visibility = View.GONE
-            binding.cardStaffManagement.visibility = View.GONE
-        } else {
-            binding.cardStockAdjustment.visibility = View.VISIBLE
-            binding.cardReports.visibility = View.VISIBLE
-            binding.cardStaffManagement.visibility = View.VISIBLE
+        // All features unlocked for everyone
+        binding.cardStockAdjustment.visibility = View.VISIBLE
+        binding.cardReports.visibility = View.VISIBLE
+        binding.cardStaffManagement.visibility = View.VISIBLE
 
-            viewLifecycleOwner.lifecycleScope.launch {
-                app.repository.pendingStaffCount.collect { count ->
-                    if (_binding != null) {
-                        if (count > 0) {
-                            binding.tvPendingStaffBadge.visibility = View.VISIBLE
-                            binding.tvPendingStaffBadge.text = "$count PENDING"
-                        } else {
-                            binding.tvPendingStaffBadge.visibility = View.GONE
-                        }
+        viewLifecycleOwner.lifecycleScope.launch {
+            app.repository.pendingStaffCount.collect { count ->
+                if (_binding != null) {
+                    if (count > 0) {
+                        binding.tvPendingStaffBadge.visibility = View.VISIBLE
+                        binding.tvPendingStaffBadge.text = "$count PENDING"
+                    } else {
+                        binding.tvPendingStaffBadge.visibility = View.GONE
                     }
                 }
             }
@@ -102,19 +90,11 @@ class MoreFragment : Fragment() {
         }
 
         binding.cardStockAdjustment.setOnClickListener {
-            if (app.sessionManager.isAdmin) {
-                startActivity(Intent(requireContext(), StockAdjustmentActivity::class.java))
-            } else {
-                Toast.makeText(requireContext(), "Admin permission required for stock adjustments", Toast.LENGTH_SHORT).show()
-            }
+            startActivity(Intent(requireContext(), StockAdjustmentActivity::class.java))
         }
 
         binding.cardReports.setOnClickListener {
-            if (app.sessionManager.isAdmin) {
-                startActivity(Intent(requireContext(), ReportsActivity::class.java))
-            } else {
-                Toast.makeText(requireContext(), "Admin permission required to view profit reports", Toast.LENGTH_SHORT).show()
-            }
+            startActivity(Intent(requireContext(), ReportsActivity::class.java))
         }
 
         binding.cardStaffManagement.setOnClickListener {

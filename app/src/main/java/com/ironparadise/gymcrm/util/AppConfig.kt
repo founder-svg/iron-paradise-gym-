@@ -11,17 +11,7 @@ object AppConfig {
     const val MASTER_ADMIN_APPROVAL_CODE = "1234"
     const val DEFAULT_SERVER_URL = "https://iron-paradise-gym-api.onrender.com"
 
-    val currentAppRole: AppRoleType
-        get() = try {
-            if (BuildConfig.FLAVOR.equals("staff", ignoreCase = true)) {
-                AppRoleType.STAFF
-            } else {
-                AppRoleType.ADMIN
-            }
-        } catch (e: Exception) {
-            AppRoleType.ADMIN
-        }
-
-    val isStaffApp: Boolean get() = currentAppRole == AppRoleType.STAFF
-    val isAdminApp: Boolean get() = currentAppRole == AppRoleType.ADMIN
+    val currentAppRole: AppRoleType get() = AppRoleType.ADMIN
+    val isStaffApp: Boolean get() = false
+    val isAdminApp: Boolean get() = true
 }
